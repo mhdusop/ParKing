@@ -1,8 +1,4 @@
-export enum UserRole {
-   USER = "USER",
-   STAFF = "STAFF",
-   ADMIN = "ADMIN",
-}
+import { UserRole } from "@prisma/client";
 
 export enum ReservationStatus {
    PENDING = "PENDING",
@@ -29,7 +25,7 @@ export interface User {
    id: string;
    email: string;
    name: string;
-   phone?: string;
+   phone?: string | null;
    role: UserRole;
    createdAt: Date;
    updatedAt: Date;
