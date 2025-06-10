@@ -1,0 +1,27 @@
+import { Router } from "express";
+import {
+   getMyReservationsController,
+   createReservationController,
+   cancelReservationController,
+   confirmReservationPaymentController,
+   getPendingCashPaymentsController,
+} from "../controllers/reservation.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
+
+const reservationRouter = Router();
+
+reservationRouter.get("/my-reservations", getMyReservationsController);
+reservationRouter.post("/", authMiddleware, createReservationController);
+reservationRouter.delete("/:id", authMiddleware, cancelReservationController);
+reservationRouter.put(
+   "/:id/confirm",
+   authMiddleware,
+   confirmReservationPaymentController
+);
+reservationRouter.get(
+   "/pending-cash",
+   authMiddleware,
+   getPendingCashPaymentsController
+);
+
+export default reservationRouter;

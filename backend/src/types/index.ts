@@ -1,18 +1,4 @@
-import { UserRole } from "@prisma/client";
-
-export enum ReservationStatus {
-   PENDING = "PENDING",
-   CONFIRMED = "CONFIRMED",
-   CANCELLED = "CANCELLED",
-   COMPLETED = "COMPLETED",
-   EXPIRED = "EXPIRED",
-}
-
-export enum PaymentMethod {
-   CASH = "CASH",
-   ONLINE = "ONLINE",
-   CARD = "CARD",
-}
+import { UserRole, ReservationStatus, PaymentType } from "@prisma/client";
 
 export enum PaymentStatus {
    PENDING = "PENDING",
@@ -24,6 +10,7 @@ export enum PaymentStatus {
 export interface User {
    id: string;
    email: string;
+   password: string;
    name: string;
    phone?: string | null;
    role: UserRole;
@@ -45,15 +32,31 @@ export interface ParkingSpot {
 export interface Reservation {
    id: string;
    userId: string;
-   parkingSpotId: string;
+   spotId: string;
    startTime: Date;
    endTime: Date;
    status: ReservationStatus;
-   paymentMethod: PaymentMethod;
+   paymentType: PaymentType;
    totalAmount: number;
    notes?: string;
    createdAt: Date;
    updatedAt: Date;
+   spot?: ParkingSpot;
+   user?: User;
+   payment?: Payment;
+}
+
+export interface CreateReservationInput {
+   userId: string;
+   spotId: string;
+   startTime: Date;
+   endTime: Date;
+   notes?: string;
+}
+
+export interface UpdateReservationInput {
+   status?: ReservationStatus;
+   notes?: string;
 }
 
 export interface Payment {
@@ -61,9 +64,10 @@ export interface Payment {
    reservationId: string;
    userId: string;
    amount: number;
-   method: PaymentMethod;
+   method: PaymentType;
    status: PaymentStatus;
    paidAt?: Date;
+   processedBy?: string;
    createdAt: Date;
    updatedAt: Date;
 }

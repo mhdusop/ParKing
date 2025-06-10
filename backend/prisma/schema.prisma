@@ -10,12 +10,14 @@ datasource db {
 model User {
   id           String        @id @default(uuid())
   email        String        @unique
+  password     String
   name         String
   phone        String?
   role         UserRole      @default(USER)
   reservations Reservation[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  Payment      Payment[]
 
   @@map("users")
 }
@@ -62,6 +64,7 @@ model Payment {
   paidAt        DateTime?
   processedBy   String?
   reservation   Reservation   @relation(fields: [reservationId], references: [id])
+  staff         User?         @relation(fields: [processedBy], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 

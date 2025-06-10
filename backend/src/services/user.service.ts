@@ -1,14 +1,16 @@
-// src/services/user.service.ts
 import prisma from "../utils/prisma";
 import { User } from "../types";
+import bcrypt from "bcryptjs";
 
 export const createUser = async (
    data: Omit<User, "id" | "createdAt" | "updatedAt">
 ): Promise<User> => {
    try {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
       return await prisma.user.create({
          data: {
             email: data.email,
+            password: hashedPassword,
             name: data.name,
             phone: data.phone,
             role: data.role,

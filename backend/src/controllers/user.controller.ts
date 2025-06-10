@@ -1,4 +1,3 @@
-// src/controllers/user.controller.ts
 import { Request, Response } from "express";
 import { createUser, findUserById } from "../services/user.service";
 import { ApiResponse, User } from "../types";
@@ -8,8 +7,8 @@ export const createUserController = async (
    res: Response
 ): Promise<void> => {
    try {
-      const { email, name, phone, role } = req.body;
-      const user = await createUser({ email, name, phone, role });
+      const { email, password, name, phone, role } = req.body;
+      const user = await createUser({ email, password, name, phone, role });
 
       res.status(201).json({
          success: true,
