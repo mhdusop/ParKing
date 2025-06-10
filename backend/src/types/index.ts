@@ -33,7 +33,7 @@ export interface User {
 
 export interface ParkingSpot {
    id: string;
-   number: string;
+   spotNumber: string;
    location: string;
    floor: string;
    isActive: boolean;

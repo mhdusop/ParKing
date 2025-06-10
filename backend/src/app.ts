@@ -1,14 +1,18 @@
 import cors from "cors";
 import express, { Express, Request, Response } from "express";
-import { userRoutes } from "./routes/user.routes";
+
 import config from "./config/config";
+import userRouter from "./routes/user.routes";
+import parkingRouter from "./routes/parking.route";
 
 const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use("/api/users", userRoutes());
+
+app.use("/api/users", userRouter);
+app.use("/api/parking", parkingRouter);
 
 app.get("/", (req: Request, res: Response) => {
    res.send("hello world");
