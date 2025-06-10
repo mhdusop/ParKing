@@ -55,9 +55,11 @@ export const createReservation = async (
       const spot = await prisma.parkingSpot.findUnique({
          where: { id: spotId },
       });
+
       if (!spot) {
          throw new Error("Parking spot not found");
       }
+
       const totalAmount = calculateTotalAmount(
          startTime,
          endTime,
