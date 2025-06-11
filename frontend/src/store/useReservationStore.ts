@@ -23,6 +23,15 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
    error: null,
 
    fetchReservations: async () => {
+      try {
+         const reservations = await reservationService.getAll();
+         set({ reservations });
+      } catch (error) {
+         console.error(error);
+      }
+   },
+
+   fetchMyReservations: async () => {
       set({ loading: true, error: null });
       try {
          const data = await reservationService.getMyReservations();

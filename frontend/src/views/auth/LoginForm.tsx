@@ -17,12 +17,12 @@ export default function LoginForm() {
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       setLoading(true);
-      await login(email, password);
+
+      const success = await login(email, password);
       setLoading(false);
 
-      const user = useAuthStore.getState().user;
-      if (user) {
-         router.push("/");
+      if (success) {
+         router.push("/pages/parking");
       }
    };
 

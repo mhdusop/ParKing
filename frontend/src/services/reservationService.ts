@@ -1,8 +1,32 @@
 import { API } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Reservation } from "@/types";
+import { getToken } from "@/utils/get-token";
 
 export const reservationService = {
+   getAll: async () => {
+      const res = await fetch(API.RESERVATIONS.BASE, {
+         headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+               document?.cookie
+                  ?.split("; ")
+                  ?.find((row) => row.startsWith("token="))
+                  ?.split("=")[1] ?? ""
+            }`,
+         },
+      });
+
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
+
+      if (!res.ok) throw new Error("Gagal mengambil reservasi");
+
+      const { data } = await res.json();
+      return data;
+   },
+
    getMyReservations: async (): Promise<Reservation[]> => {
       const token = useAuthStore.getState().token;
 
@@ -12,6 +36,10 @@ export const reservationService = {
             "Content-Type": "application/json",
          },
       });
+
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
 
       if (!res.ok) throw new Error("Gagal mengambil daftar reservasi");
 
@@ -25,10 +53,13 @@ export const reservationService = {
       endTime: string;
       notes?: string;
    }): Promise<Reservation> => {
+      const token = getToken();
+      if (!token) throw new Error("Unauthorized");
       const res = await fetch(API.RESERVATIONS.BASE, {
          method: "POST",
          headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
          },
          body: JSON.stringify({
             ...payload,
@@ -36,19 +67,29 @@ export const reservationService = {
          }),
       });
 
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
+
       if (!res.ok) throw new Error("Gagal membuat reservasi");
       const json = await res.json();
       return json.data;
    },
 
-   cancelReservation: async (id: string): Promise<void> => {
-      const res = await fetch(API.RESERVATIONS.BY_ID(id), {
-         method: "PATCH",
+   cancelReservation: async (reservationId: string): Promise<void> => {
+      const token = getToken();
+      if (!token) throw new Error("Unauthorized");
+      const res = await fetch(API.RESERVATIONS.BY_ID(reservationId), {
+         method: "DELETE",
          headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
          },
-         body: JSON.stringify({ status: "CANCELLED" }),
       });
+
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
 
       if (!res.ok) throw new Error("Gagal membatalkan reservasi");
    },

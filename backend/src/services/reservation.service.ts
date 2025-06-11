@@ -148,15 +148,6 @@ export const cancelReservation = async (
          throw new Error("Can only cancel pending reservations");
       }
 
-      const oneHourBeforeStart = new Date(
-         reservation.startTime.getTime() - 60 * 60 * 1000
-      );
-      if (new Date() > oneHourBeforeStart) {
-         throw new Error(
-            "Cannot cancel reservation less than 1 hour before start time"
-         );
-      }
-
       await prisma.reservation.update({
          where: { id },
          data: { status: ReservationStatus.CANCELLED },
@@ -214,6 +205,29 @@ export const confirmReservationPayment = async (
          );
       }
       throw new Error(`Error confirming reservation payment`);
+   }
+};
+
+export const completeExpiredReservations = async (): Promise<void> => {
+   const now = new Date();
+
+   const expiredReservations = await prisma.reservation.findMany({
+      where: {
+         status: ReservationStatus.CONFIRMED,
+         endTime: { lt: now },
+      },
+   });
+
+   for (const reservation of expiredReservations) {
+      await prisma.reservation.update({
+         where: { id: reservation.id },
+         data: { status: ReservationStatus.COMPLETED },
+      });
+
+      await prisma.parkingSpot.update({
+         where: { id: reservation.spotId },
+         data: { isActive: true },
+      });
    }
 };
 

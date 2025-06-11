@@ -6,6 +6,7 @@ import {
    confirmReservationPayment,
    getPendingCashPayments,
    getMyReservations,
+   completeExpiredReservations,
 } from "../services/reservation.service";
 import { ApiResponse, Reservation, CreateReservationInput } from "../types";
 
@@ -147,6 +148,25 @@ export const confirmReservationPaymentController = async (
       } as ApiResponse<Reservation>);
    } catch (error) {
       res.status(400).json({
+         success: false,
+         error: error instanceof Error ? error.message : String(error),
+      } as ApiResponse<null>);
+   }
+};
+
+export const completeExpiredReservationsController = async (
+   req: Request,
+   res: Response
+): Promise<void> => {
+   try {
+      await completeExpiredReservations();
+
+      res.json({
+         success: true,
+         message: "Expired reservations have been completed.",
+      } as ApiResponse<null>);
+   } catch (error) {
+      res.status(500).json({
          success: false,
          error: error instanceof Error ? error.message : String(error),
       } as ApiResponse<null>);
