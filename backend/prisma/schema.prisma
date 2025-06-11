@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
+  id           String        @id @default(uuid())
   email        String        @unique
+  password     String
   name         String
   phone        String?
   role         UserRole      @default(USER)
   reservations Reservation[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  Payment      Payment[]
 
   @@map("users")
 }
 
 model ParkingSpot {
-  id           String        @id @default(cuid())
+  id           String        @id @default(uuid())
   spotNumber   String        @unique
   location     String
   floor        String
@@ -35,7 +37,7 @@ model ParkingSpot {
 }
 
 model Reservation {
-  id          String            @id @default(cuid())
+  id          String            @id @default(uuid())
   userId      String
   spotId      String
   startTime   DateTime
@@ -54,7 +56,7 @@ model Reservation {
 }
 
 model Payment {
-  id            String        @id @default(cuid())
+  id            String        @id @default(uuid())
   reservationId String        @unique
   amount        Decimal       @db.Decimal(10, 2)
   status        PaymentStatus @default(PENDING)
@@ -62,6 +64,7 @@ model Payment {
   paidAt        DateTime?
   processedBy   String?
   reservation   Reservation   @relation(fields: [reservationId], references: [id])
+  staff         User?         @relation(fields: [processedBy], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
