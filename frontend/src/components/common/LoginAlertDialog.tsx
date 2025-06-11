@@ -9,6 +9,7 @@ import {
    DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface LoginAlertDialogProps {
    open: boolean;
@@ -16,8 +17,10 @@ interface LoginAlertDialogProps {
 }
 
 export function LoginAlertDialog({ open, onClose }: LoginAlertDialogProps) {
+   const router = useRouter();
+
    const redirectToLogin = () => {
-      window.location.href = "/auth/login";
+      router.push("/auth/login");
    };
 
    return (

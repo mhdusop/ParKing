@@ -1,29 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ParkingSpot } from "@/types";
+import type { ParkingSpot, Reservation } from "@/types";
 import { useParkingStore } from "@/store/useParkingStore";
 import { useReservationStore } from "@/store/useReservationStore";
-import { Card, CardContent } from "@/components/ui/card";
 import { CarFront } from "lucide-react";
 import { ReservationDialog } from "@/components/common/ReservationDialog";
 import { LoginAlertDialog } from "@/components/common/LoginAlertDialog";
 import { useAuthStore } from "@/store/useAuthStore";
-import { stat } from "fs";
 import { showError, showSuccess } from "@/utils/toast";
 import { reservationService } from "@/services/reservationService";
+import { ParkingSpotCard } from "./components/ParkingSpotCard";
 
 interface ClientParkingProps {
    initialSpots: ParkingSpot[];
 }
 
 export default function ClientParking({ initialSpots }: ClientParkingProps) {
-   const { spots, fetchSpots, loading, error, selectSpot } = useParkingStore();
+   const { spots, fetchSpots, loading, error } = useParkingStore();
    const { reservations, fetchReservations } = useReservationStore();
    const [showReservationModal, setShowReservationModal] = useState(false);
    const [selectedSpot, setSelectedSpot] = useState<ParkingSpot | null>(null);
    const [showLoginAlert, setShowLoginAlert] = useState(false);
    const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
+   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
    const user = useAuthStore((state) => state.user);
 
    useEffect(() => {
@@ -45,42 +45,6 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
       }
    });
 
-   const getCardBgColor = (status?: string, isActive?: boolean) => {
-      if (!isActive) return "bg-gray-200 border-dashed border-gray-400";
-      switch (status) {
-         case "PENDING":
-            return "bg-yellow-300";
-         case "CONFIRMED":
-            return "bg-red-500";
-         default:
-            return "bg-green-100";
-      }
-   };
-
-   const getTextColor = (status?: string) => {
-      switch (status) {
-         case "CONFIRMED":
-            return "text-white";
-         case "PENDING":
-            return "text-gray-800";
-         default:
-            return "text-green-800";
-      }
-   };
-
-   const getStatusLabel = (status?: string) => {
-      switch (status) {
-         case "PENDING":
-            return "Menunggu";
-         case "CONFIRMED":
-            return "Dipesan";
-         default:
-            return "Tersedia";
-      }
-   };
-
-
-
    const handleSpotClick = (spot: ParkingSpot) => {
       const status = reservationStatusMap[spot.id];
 
@@ -99,11 +63,12 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
          return;
       }
 
-      const existing = reservations.find(
+      const reservation = reservations.find(
          (res) => res.spotId === spot.id && res.status === "PENDING"
       );
 
-      setSelectedReservationId(existing?.id || null);
+      setSelectedReservation(reservation || null);
+      setSelectedReservationId(reservation?.id || null);
       setSelectedSpot(spot);
       setShowReservationModal(true);
    };
@@ -141,31 +106,25 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {renderSpots.map((spot) => {
                const status = reservationStatusMap[spot.id];
+               const reservation = reservations.find(
+                  (res) =>
+                     res.spotId === spot.id &&
+                     res.status !== "CANCELLED" &&
+                     res.status !== "COMPLETED"
+               );
+
                return (
-                  <Card
+                  <ParkingSpotCard
                      key={spot.id}
-                     className={`cursor-pointer transition hover:shadow-md flex items-center justify-center text-center rounded-lg ${getCardBgColor(
-                        status,
-                        spot.isActive
-                     )}`}
-                     onClick={() => handleSpotClick(spot)}
-                  >
-                     <CardContent className="p-4 flex flex-col items-center justify-center w-full h-full">
-                        <h1
-                           className={`text-lg font-semibold ${getTextColor(status)}`}
-                        >
-                           {spot.spotNumber}
-                        </h1>
-                        <span
-                           className={`text-xs mt-1 font-medium ${getTextColor(status)}`}
-                        >
-                           {spot.isActive ? getStatusLabel(status) : "Tidak Aktif"}
-                        </span>
-                     </CardContent>
-                  </Card>
+                     spot={spot}
+                     reservationStatus={status}
+                     reservation={reservation || null}
+                     onClick={handleSpotClick}
+                  />
                );
             })}
          </div>
+
          {selectedSpot && (
             <ReservationDialog
                open={showReservationModal}
@@ -187,6 +146,14 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
                      showSuccess("Reservasi berhasil dibuat!");
                      fetchReservations();
                   } catch (error: any) {
+                     if (
+                        error.message?.includes("401") ||
+                        error.message?.toLowerCase().includes("unauthorized")
+                     ) {
+                        setShowReservationModal(false);
+                        setShowLoginAlert(true);
+                        return;
+                     }
                      showError(error.message || "Gagal membuat reservasi.");
                   }
                }}
@@ -202,6 +169,7 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
                }}
             />
          )}
+
          <LoginAlertDialog
             open={showLoginAlert}
             onClose={() => setShowLoginAlert(false)}

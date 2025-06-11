@@ -17,6 +17,10 @@ export const reservationService = {
          },
       });
 
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
+
       if (!res.ok) throw new Error("Gagal mengambil reservasi");
 
       const { data } = await res.json();
@@ -32,6 +36,10 @@ export const reservationService = {
             "Content-Type": "application/json",
          },
       });
+
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
 
       if (!res.ok) throw new Error("Gagal mengambil daftar reservasi");
 
@@ -59,6 +67,10 @@ export const reservationService = {
          }),
       });
 
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
+
       if (!res.ok) throw new Error("Gagal membuat reservasi");
       const json = await res.json();
       return json.data;
@@ -74,6 +86,10 @@ export const reservationService = {
             Authorization: `Bearer ${token}`,
          },
       });
+
+      if (res.status === 401) {
+         throw new Error("401 Unauthorized");
+      }
 
       if (!res.ok) throw new Error("Gagal membatalkan reservasi");
    },

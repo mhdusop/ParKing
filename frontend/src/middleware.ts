@@ -13,10 +13,6 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
    }
 
-   if (token && isAuthPage) {
-      return NextResponse.redirect(new URL("/pages/parking", req.url));
-   }
-
    return NextResponse.next();
 }
 

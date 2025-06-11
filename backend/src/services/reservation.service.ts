@@ -208,6 +208,29 @@ export const confirmReservationPayment = async (
    }
 };
 
+export const completeExpiredReservations = async (): Promise<void> => {
+   const now = new Date();
+
+   const expiredReservations = await prisma.reservation.findMany({
+      where: {
+         status: ReservationStatus.CONFIRMED,
+         endTime: { lt: now },
+      },
+   });
+
+   for (const reservation of expiredReservations) {
+      await prisma.reservation.update({
+         where: { id: reservation.id },
+         data: { status: ReservationStatus.COMPLETED },
+      });
+
+      await prisma.parkingSpot.update({
+         where: { id: reservation.spotId },
+         data: { isActive: true },
+      });
+   }
+};
+
 export const getPendingCashPayments = async (): Promise<Reservation[]> => {
    try {
       const reservations = await prisma.reservation.findMany({

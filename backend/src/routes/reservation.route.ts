@@ -6,6 +6,7 @@ import {
    confirmReservationPaymentController,
    getPendingCashPaymentsController,
    getAllReservationsController,
+   completeExpiredReservationsController,
 } from "../controllers/reservation.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
@@ -24,6 +25,11 @@ reservationRouter.put(
    "/:id/confirm",
    authMiddleware,
    confirmReservationPaymentController
+);
+reservationRouter.post(
+   "/complete-expired",
+   authMiddleware,
+   completeExpiredReservationsController
 );
 reservationRouter.get(
    "/pending-cash",

@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ParkingSpot } from "@/types";
 
 interface ReservationDialogProps {
@@ -14,7 +14,14 @@ interface ReservationDialogProps {
    onCancel?: (reservationId: string) => void;
 }
 
-export function ReservationDialog({ open, onClose, spot, onSubmit, reservationId, onCancel }: ReservationDialogProps) {
+export function ReservationDialog({
+   open,
+   onClose,
+   spot,
+   onSubmit,
+   reservationId,
+   onCancel,
+}: ReservationDialogProps) {
    const [loading, setLoading] = useState(false);
 
    const handleConfirm = async () => {
