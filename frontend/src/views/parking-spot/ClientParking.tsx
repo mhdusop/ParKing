@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ParkingSpot } from "@/types";
 import { useParkingStore } from "@/store/useParkingStore";
 import { useReservationStore } from "@/store/useReservationStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { CarFront } from "lucide-react";
+import { ReservationDialog } from "@/components/common/ReservationDialog";
+import { LoginAlertDialog } from "@/components/common/LoginAlertDialog";
+import { useAuthStore } from "@/store/useAuthStore";
+import { stat } from "fs";
 
 interface ClientParkingProps {
    initialSpots: ParkingSpot[];
@@ -14,6 +18,10 @@ interface ClientParkingProps {
 export default function ClientParking({ initialSpots }: ClientParkingProps) {
    const { spots, fetchSpots, loading, error, selectSpot } = useParkingStore();
    const { reservations, fetchReservations } = useReservationStore();
+   const [showReservationModal, setShowReservationModal] = useState(false);
+   const [selectedSpot, setSelectedSpot] = useState<ParkingSpot | null>(null);
+   const [showLoginAlert, setShowLoginAlert] = useState(false);
+   const user = useAuthStore((state) => state.user);
 
    useEffect(() => {
       if (initialSpots && initialSpots.length > 0) {
@@ -68,6 +76,17 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
       }
    };
 
+   const handleSpotClick = (spot: ParkingSpot) => {
+      console.log("User:", user);
+      if (!user) {
+         setShowLoginAlert(true);
+         return;
+      }
+
+      setSelectedSpot(spot);
+      setShowReservationModal(true);
+   };
+
    return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
          <div className="w-full flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -108,7 +127,7 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
                         status,
                         spot.isActive
                      )}`}
-                     onClick={() => selectSpot(spot)}
+                     onClick={() => handleSpotClick(spot)}
                   >
                      <CardContent className="p-4 flex flex-col items-center justify-center w-full h-full">
                         <h1
@@ -126,6 +145,20 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
                );
             })}
          </div>
+         {selectedSpot && (
+            <ReservationDialog
+               open={showReservationModal}
+               onClose={() => setShowReservationModal(false)}
+               spot={selectedSpot}
+               onSubmit={async (spotId) => {
+                  fetchReservations();
+               }}
+            />
+         )}
+         <LoginAlertDialog
+            open={showLoginAlert}
+            onClose={() => setShowLoginAlert(false)}
+         />
       </div>
    );
 }

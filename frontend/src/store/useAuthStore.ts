@@ -14,7 +14,7 @@ interface AuthState {
    user: User | null;
    error: string | null;
 
-   login: (email: string, password: string) => Promise<void>;
+   login: (email: string, password: string) => Promise<boolean>;
    logout: () => void;
 }
 
@@ -27,24 +27,29 @@ export const useAuthStore = create<AuthState>()(
 
          login: async (email, password) => {
             try {
-               const { token } = await authService.login({
-                  email,
-                  password,
-               });
+               const response = await authService.login({ email, password });
+
+               const token = response.token;
+               const user = response.user;
 
                document.cookie = `token=${token}; path=/; max-age=86400`;
-               set({ token, error: null });
-            } catch (err) {
+
+               set({ token, user, error: null });
+               return true;
+            } catch (err: any) {
                set({
                   error:
-                     err instanceof Error
-                        ? err.message
-                        : "Login gagal, coba lagi.",
+                     err?.response?.data?.message ||
+                     "Login gagal, periksa email dan password.",
                });
+               return false;
             }
          },
 
-         logout: () => set({ token: null, user: null, error: null }),
+         logout: () => {
+            document.cookie = "token=; path=/; max-age=0";
+            set({ token: null, user: null, error: null });
+         },
       }),
       {
          name: "auth-storage",

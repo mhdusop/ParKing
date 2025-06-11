@@ -57,7 +57,7 @@ export const loginController = async (
 
       res.json({
          success: true,
-         data: { token },
+         data: { token, user },
       } as ApiResponse<{ token: string }>);
    } catch (error) {
       res.status(400).json({

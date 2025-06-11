@@ -1,4 +1,5 @@
 import { API } from "@/lib/api";
+import { User } from "@/types";
 
 interface LoginPayload {
    email: string;
@@ -6,7 +7,9 @@ interface LoginPayload {
 }
 
 export const authService = {
-   login: async (payload: LoginPayload): Promise<{ token: string }> => {
+   login: async (
+      payload: LoginPayload
+   ): Promise<{ token: string; user: User }> => {
       const res = await fetch(API.AUTH.LOGIN, {
          method: "POST",
          headers: {
