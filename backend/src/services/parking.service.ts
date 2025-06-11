@@ -4,7 +4,7 @@ import { ParkingSpot } from "../types";
 export const getAllParkingSpots = async (): Promise<ParkingSpot[]> => {
    try {
       const spots = await prisma.parkingSpot.findMany({
-         orderBy: { createdAt: "desc" },
+         orderBy: { createdAt: "asc" },
       });
 
       return spots.map((spot) => ({

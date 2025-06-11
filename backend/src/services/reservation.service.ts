@@ -148,15 +148,6 @@ export const cancelReservation = async (
          throw new Error("Can only cancel pending reservations");
       }
 
-      const oneHourBeforeStart = new Date(
-         reservation.startTime.getTime() - 60 * 60 * 1000
-      );
-      if (new Date() > oneHourBeforeStart) {
-         throw new Error(
-            "Cannot cancel reservation less than 1 hour before start time"
-         );
-      }
-
       await prisma.reservation.update({
          where: { id },
          data: { status: ReservationStatus.CANCELLED },

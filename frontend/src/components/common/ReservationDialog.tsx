@@ -10,9 +10,11 @@ interface ReservationDialogProps {
    onClose: () => void;
    spot: ParkingSpot;
    onSubmit: (spotId: string) => void;
+   reservationId?: string;
+   onCancel?: (reservationId: string) => void;
 }
 
-export function ReservationDialog({ open, onClose, spot, onSubmit }: ReservationDialogProps) {
+export function ReservationDialog({ open, onClose, spot, onSubmit, reservationId, onCancel }: ReservationDialogProps) {
    const [loading, setLoading] = useState(false);
 
    const handleConfirm = async () => {
@@ -45,9 +47,19 @@ export function ReservationDialog({ open, onClose, spot, onSubmit }: Reservation
                <Button variant="outline" onClick={onClose} disabled={loading}>
                   Batal
                </Button>
-               <Button onClick={handleConfirm} disabled={loading}>
-                  {loading ? "Memproses..." : "Pesan Sekarang"}
-               </Button>
+               {reservationId && onCancel ? (
+                  <Button
+                     variant="destructive"
+                     onClick={() => onCancel(reservationId)}
+                     disabled={loading}
+                  >
+                     Batalkan Reservasi
+                  </Button>
+               ) : (
+                  <Button onClick={handleConfirm} disabled={loading}>
+                     {loading ? "Memproses..." : "Pesan Sekarang"}
+                  </Button>
+               )}
             </DialogFooter>
          </DialogContent>
       </Dialog>

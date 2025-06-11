@@ -1,6 +1,7 @@
 import { API } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Reservation } from "@/types";
+import { getToken } from "@/utils/get-token";
 
 export const reservationService = {
    getAll: async () => {
@@ -44,10 +45,13 @@ export const reservationService = {
       endTime: string;
       notes?: string;
    }): Promise<Reservation> => {
+      const token = getToken();
+      if (!token) throw new Error("Unauthorized");
       const res = await fetch(API.RESERVATIONS.BASE, {
          method: "POST",
          headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
          },
          body: JSON.stringify({
             ...payload,
@@ -60,13 +64,15 @@ export const reservationService = {
       return json.data;
    },
 
-   cancelReservation: async (id: string): Promise<void> => {
-      const res = await fetch(API.RESERVATIONS.BY_ID(id), {
-         method: "PATCH",
+   cancelReservation: async (reservationId: string): Promise<void> => {
+      const token = getToken();
+      if (!token) throw new Error("Unauthorized");
+      const res = await fetch(API.RESERVATIONS.BY_ID(reservationId), {
+         method: "DELETE",
          headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
          },
-         body: JSON.stringify({ status: "CANCELLED" }),
       });
 
       if (!res.ok) throw new Error("Gagal membatalkan reservasi");

@@ -10,7 +10,8 @@ import { ReservationDialog } from "@/components/common/ReservationDialog";
 import { LoginAlertDialog } from "@/components/common/LoginAlertDialog";
 import { useAuthStore } from "@/store/useAuthStore";
 import { stat } from "fs";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast";
+import { reservationService } from "@/services/reservationService";
 
 interface ClientParkingProps {
    initialSpots: ParkingSpot[];
@@ -22,6 +23,7 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
    const [showReservationModal, setShowReservationModal] = useState(false);
    const [selectedSpot, setSelectedSpot] = useState<ParkingSpot | null>(null);
    const [showLoginAlert, setShowLoginAlert] = useState(false);
+   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null);
    const user = useAuthStore((state) => state.user);
 
    useEffect(() => {
@@ -97,12 +99,11 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
          return;
       }
 
-      if (status === "PENDING") {
-         showError("Tempat parkir ini sedang menunggu konfirmasi.");
-         return;
-      }
+      const existing = reservations.find(
+         (res) => res.spotId === spot.id && res.status === "PENDING"
+      );
 
-
+      setSelectedReservationId(existing?.id || null);
       setSelectedSpot(spot);
       setShowReservationModal(true);
    };
@@ -170,8 +171,34 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
                open={showReservationModal}
                onClose={() => setShowReservationModal(false)}
                spot={selectedSpot}
+               reservationId={selectedReservationId ?? undefined}
                onSubmit={async (spotId) => {
-                  fetchReservations();
+                  try {
+                     const now = new Date();
+                     const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+                     await reservationService.createReservation({
+                        spotId,
+                        startTime: now.toISOString(),
+                        endTime: twoHoursLater.toISOString(),
+                        notes: `Reservasi untuk spot ${selectedSpot?.spotNumber}`,
+                     });
+
+                     showSuccess("Reservasi berhasil dibuat!");
+                     fetchReservations();
+                  } catch (error: any) {
+                     showError(error.message || "Gagal membuat reservasi.");
+                  }
+               }}
+               onCancel={async (reservationId) => {
+                  try {
+                     await reservationService.cancelReservation(reservationId);
+                     showSuccess("Reservasi berhasil dibatalkan.");
+                     fetchReservations();
+                     setShowReservationModal(false);
+                  } catch (err: any) {
+                     showError(err.message || "Gagal membatalkan reservasi.");
+                  }
                }}
             />
          )}
