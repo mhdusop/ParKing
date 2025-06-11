@@ -10,7 +10,11 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 
 const reservationRouter = Router();
 
-reservationRouter.get("/my-reservations", getMyReservationsController);
+reservationRouter.get(
+   "/my-reservations",
+   authMiddleware,
+   getMyReservationsController
+);
 reservationRouter.post("/", authMiddleware, createReservationController);
 reservationRouter.delete("/:id", authMiddleware, cancelReservationController);
 reservationRouter.put(
