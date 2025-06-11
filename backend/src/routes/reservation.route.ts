@@ -5,10 +5,13 @@ import {
    cancelReservationController,
    confirmReservationPaymentController,
    getPendingCashPaymentsController,
+   getAllReservationsController,
 } from "../controllers/reservation.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
 const reservationRouter = Router();
+
+reservationRouter.get("/", getAllReservationsController);
 
 reservationRouter.get(
    "/my-reservations",
