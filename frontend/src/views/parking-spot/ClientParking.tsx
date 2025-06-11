@@ -10,6 +10,7 @@ import { ReservationDialog } from "@/components/common/ReservationDialog";
 import { LoginAlertDialog } from "@/components/common/LoginAlertDialog";
 import { useAuthStore } from "@/store/useAuthStore";
 import { stat } from "fs";
+import { showError } from "@/utils/toast";
 
 interface ClientParkingProps {
    initialSpots: ParkingSpot[];
@@ -76,12 +77,31 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
       }
    };
 
+
+
    const handleSpotClick = (spot: ParkingSpot) => {
-      console.log("User:", user);
+      const status = reservationStatusMap[spot.id];
+
       if (!user) {
          setShowLoginAlert(true);
          return;
       }
+
+      if (!spot.isActive) {
+         showError("Tempat parkir ini tidak aktif.");
+         return;
+      }
+
+      if (status === "CONFIRMED") {
+         showError("Tempat parkir ini sudah dibooking.");
+         return;
+      }
+
+      if (status === "PENDING") {
+         showError("Tempat parkir ini sedang menunggu konfirmasi.");
+         return;
+      }
+
 
       setSelectedSpot(spot);
       setShowReservationModal(true);
