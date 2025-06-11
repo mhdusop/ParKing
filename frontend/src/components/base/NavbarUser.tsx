@@ -16,7 +16,7 @@ export function NavbarUser() {
       <div className="w-full shadow-sm bg-white">
          <div className="mx-auto max-w-5xl px-4 py-4 w-full">
             <div className="flex items-center justify-between">
-               <div className="font-bold text-xl text-primary">ParKing</div>
+               <div className="font-bold text-xl">ParKing</div>
 
                <NavigationMenu className="hidden md:flex">
                   <NavigationMenuList className="space-x-10">
@@ -43,14 +43,14 @@ export function NavbarUser() {
             {menuOpen && (
                <div className="md:hidden mt-4 space-y-3">
                   <Link
-                     href="/parking"
+                     href="/pages/parking"
                      className="block text-sm px-2 py-1 hover:bg-gray-100 rounded"
                      onClick={() => setMenuOpen(false)}
                   >
                      Spot Parking
                   </Link>
                   <Link
-                     href="/reservation"
+                     href="/pages/reservation"
                      className="block text-sm px-2 py-1 hover:bg-gray-100 rounded"
                      onClick={() => setMenuOpen(false)}
                   >

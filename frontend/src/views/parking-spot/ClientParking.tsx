@@ -77,10 +77,10 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
       <div className="max-w-5xl mx-auto py-6">
          <ParkingSpotHeader />
 
-         {loading && <p className="text-gray-500">Memuat tempat parkir...</p>}
-         {error && <p className="text-red-500">{error}</p>}
+         {loading && <p className="text-gray-500 text-center">Memuat tempat parkir...</p>}
+         {error && <p className="text-red-500 text-center">{error}</p>}
          {renderSpots.length === 0 && !loading && (
-            <p className="text-gray-600">Tidak ada tempat parkir tersedia.</p>
+            <p className="text-gray-600 text-center">Tidak ada tempat parkir tersedia.</p>
          )}
 
          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
