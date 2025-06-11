@@ -5,8 +5,28 @@ import {
    cancelReservation,
    confirmReservationPayment,
    getPendingCashPayments,
+   getMyReservations,
 } from "../services/reservation.service";
 import { ApiResponse, Reservation, CreateReservationInput } from "../types";
+
+export const getAllReservationsController = async (
+   req: Request,
+   res: Response
+): Promise<void> => {
+   try {
+      const reservations = await getAllReservations();
+
+      res.json({
+         success: true,
+         data: reservations,
+      } as ApiResponse<Reservation[]>);
+   } catch (error) {
+      res.status(500).json({
+         success: false,
+         error: error instanceof Error ? error.message : String(error),
+      } as ApiResponse<null>);
+   }
+};
 
 export const getMyReservationsController = async (
    req: Request,
@@ -22,7 +42,7 @@ export const getMyReservationsController = async (
          } as ApiResponse<null>);
          return;
       }
-      const reservations = await getAllReservations(userId);
+      const reservations = await getMyReservations(userId);
 
       res.json({
          success: true,

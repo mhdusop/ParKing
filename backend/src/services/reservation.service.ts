@@ -3,7 +3,47 @@ import { Reservation, CreateReservationInput } from "../types";
 import { calculateTotalAmount } from "../utils/calculate-total-amount";
 import { ReservationStatus, PaymentStatus, PaymentType } from "@prisma/client";
 
-export const getAllReservations = async (
+export const getAllReservations = async (): Promise<Reservation[]> => {
+   try {
+      const reservations = await prisma.reservation.findMany({
+         include: {
+            spot: true,
+         },
+         orderBy: { createdAt: "desc" },
+      });
+
+      return reservations.map((reservation) => ({
+         id: reservation.id,
+         userId: reservation.userId,
+         spotId: reservation.spotId,
+         startTime: reservation.startTime,
+         endTime: reservation.endTime,
+         status: reservation.status,
+         paymentType: reservation.paymentType,
+         totalAmount: reservation.totalAmount.toNumber(),
+         notes: reservation.notes !== null ? reservation.notes : undefined,
+         createdAt: reservation.createdAt,
+         updatedAt: reservation.updatedAt,
+         spot: {
+            id: reservation.spot.id,
+            spotNumber: reservation.spot.spotNumber,
+            location: reservation.spot.location,
+            floor: reservation.spot.floor,
+            isActive: reservation.spot.isActive,
+            pricePerHour: reservation.spot.pricePerHour.toNumber(),
+            createdAt: reservation.spot.createdAt,
+            updatedAt: reservation.spot.updatedAt,
+         },
+      }));
+   } catch (error) {
+      if (error instanceof Error) {
+         throw new Error(`Error fetching reservations ${error.message}`);
+      }
+      throw new Error(`Error fetching reservations`);
+   }
+};
+
+export const getMyReservations = async (
    userId: string
 ): Promise<Reservation[]> => {
    try {
