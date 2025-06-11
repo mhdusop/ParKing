@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import type { ParkingSpot, Reservation } from "@/types";
 import { useParkingStore } from "@/store/useParkingStore";
 import { useReservationStore } from "@/store/useReservationStore";
-import { CarFront } from "lucide-react";
 import { ReservationDialog } from "@/components/common/ReservationDialog";
 import { LoginAlertDialog } from "@/components/common/LoginAlertDialog";
 import { useAuthStore } from "@/store/useAuthStore";
 import { showError, showSuccess } from "@/utils/toast";
 import { reservationService } from "@/services/reservationService";
 import { ParkingSpotCard } from "./components/ParkingSpotCard";
+import { ParkingSpotHeader } from "./components/ParkingSpotHeader";
 
 interface ClientParkingProps {
    initialSpots: ParkingSpot[];
@@ -74,28 +74,8 @@ export default function ClientParking({ initialSpots }: ClientParkingProps) {
    };
 
    return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-         <div className="w-full flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-            <h1 className="text-2xl font-bold">Daftar Tempat Parkir</h1>
-            <div className="flex flex-wrap items-center gap-4 text-xs">
-               <div className="flex items-center gap-1">
-                  <CarFront className="text-red-500" size={14} />
-                  <span>Dipesan</span>
-               </div>
-               <div className="flex items-center gap-1">
-                  <CarFront className="text-yellow-500" size={14} />
-                  <span>Menunggu</span>
-               </div>
-               <div className="flex items-center gap-1">
-                  <CarFront className="text-green-700" size={14} />
-                  <span>Tersedia</span>
-               </div>
-               <div className="flex items-center gap-1">
-                  <CarFront className="text-gray-400" size={14} />
-                  <span>Tidak Aktif</span>
-               </div>
-            </div>
-         </div>
+      <div className="max-w-5xl mx-auto py-6">
+         <ParkingSpotHeader />
 
          {loading && <p className="text-gray-500">Memuat tempat parkir...</p>}
          {error && <p className="text-red-500">{error}</p>}
