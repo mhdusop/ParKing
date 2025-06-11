@@ -6,6 +6,7 @@ import userRouter from "./routes/user.routes";
 import parkingRouter from "./routes/parking.route";
 import reservationRouter from "./routes/reservation.route";
 import authRouter from "./routes/auth.route";
+import paymentRouter from "./routes/payment.route";
 
 const app: Express = express();
 
@@ -17,6 +18,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/parking", parkingRouter);
 app.use("/api/reservations", reservationRouter);
+app.use("/api/payments", paymentRouter);
 
 app.get("/", (req: Request, res: Response) => {
    res.send("hello world");
