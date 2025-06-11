@@ -3,6 +3,25 @@ import { useAuthStore } from "@/store/useAuthStore";
 import type { Reservation } from "@/types";
 
 export const reservationService = {
+   getAll: async () => {
+      const res = await fetch(API.RESERVATIONS.BASE, {
+         headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+               document?.cookie
+                  ?.split("; ")
+                  ?.find((row) => row.startsWith("token="))
+                  ?.split("=")[1] ?? ""
+            }`,
+         },
+      });
+
+      if (!res.ok) throw new Error("Gagal mengambil reservasi");
+
+      const { data } = await res.json();
+      return data;
+   },
+
    getMyReservations: async (): Promise<Reservation[]> => {
       const token = useAuthStore.getState().token;
 
